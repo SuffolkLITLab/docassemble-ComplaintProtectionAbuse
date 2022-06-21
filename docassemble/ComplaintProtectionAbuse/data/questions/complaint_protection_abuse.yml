@@ -1,0 +1,679 @@
+---
+include:
+  - docassemble.AssemblyLine:al_package.yml
+---
+metadata:
+  title: |
+    Complaint for protection from abuse
+  short title: |
+    Protection from abuse
+  tags:
+    - FA-07-00-00-00
+  authors:
+    - Diana Buenaños
+---
+mandatory: True
+comment: |
+  Global interview metadata
+variable name: interview_metadata["complaint_protection_abuse"]
+data:
+  al_weaver_version: "1.6.3"
+  generated on: "2022-06-21"
+  title: >-
+    Complaint for protection from abuse
+  short title: >-
+    Protection from abuse
+  description: |-
+    A way to request measures to protect you or others from abuse
+  original_form: >-
+    
+  allowed courts: 
+    - "District Court"
+  categories:
+    - "FA-07-00-00-00"
+  typical role: "plaintiff"
+  generate download screen: True
+---
+code: |
+  interview_metadata['main_interview_key'] =  'complaint_protection_abuse'
+---
+code: |
+  # This controls the default country and list of states in address field questions
+  AL_DEFAULT_COUNTRY = "US"
+---
+code: |
+  # This controls the default state in address field questions
+  AL_DEFAULT_STATE = "MA"
+---
+code: |
+  github_repo_name =  'docassemble-ComplaintProtectionAbuse'
+---
+code: |
+  interview_short_title = "Ask the court to protect you or a minor from abuse"
+---
+code: |
+  al_form_type = "starts_case" 
+---
+objects:
+  - users: ALPeopleList.using(there_are_any=True)
+---
+sections:
+  - review_complaint_protection_abuse: Review your answers
+---
+#################### Interview order #####################
+comment: |
+  Controls order and branching logic for questions specific to this form
+id: interview_order_complaint_protection_abuse
+code: |
+  # Set the allowed courts for this interview
+  allowed_courts = interview_metadata["complaint_protection_abuse"]["allowed courts"]
+  nav.set_section('review_complaint_protection_abuse')
+  user_role = 'plaintiff'
+  plaintiffs.gather()
+  plaintiffs[0].birthdate
+  plaintiffs_age_older
+  set_progress(14)
+  defendants.gather()
+  defendants[0].gender_male
+  defendants[0].gender_female
+  set_progress(28)
+  defendants_age_older
+  plaintiffs_defendant_married
+  abuse_acts_date
+  set_progress(42)
+  court_order_stop_abuse
+  plaintiffs_nochildren
+  multiple_family_residence
+  set_progress(57)
+  docket_number
+  signature_date
+  interview_order_complaint_protection_abuse = True
+---
+###################### Main order ######################
+comment: |
+  This block includes the logic for standalone interviews.
+  Delete mandatory: True to include in another interview
+mandatory: True
+code: |
+  al_intro_screen
+  complaint_protection_abuse_intro
+  interview_order_complaint_protection_abuse
+  signature_date    
+  # Save anonymized interview statistics (customize the saved data below)
+  store_variables_snapshot(data={'zip': users[0].address.zip})    
+  complaint_protection_abuse_preview_question
+  basic_questions_signature_flow    
+  plaintiffs[0].signature
+  complaint_protection_abuse_download
+---
+comment: |
+  This question is used to introduce your interview. Please customize
+id: Complaint_for_protection_from_abuse
+continue button field: complaint_protection_abuse_intro
+question: |
+  Complaint for protection from abuse
+subquestion: |
+  You will need information of the person accused of abuse, any minor you want to protected and your own information.
+---
+id: Plantiff information
+question: |
+  Plantiff information
+fields:
+  - "Plaintiffs age older": plaintiffs_age_older
+    datatype: yesno
+  - "Representative relationship": representative_relationship
+    maxlength: 14
+---
+id: Information about the defendant
+question: |
+  Information about the defendant
+fields:
+  - "Defendants age older": defendants_age_older
+    datatype: yesno
+  - "Defendants name alias": defendants_name_alias
+    maxlength: 18
+  - "Defendants gunlicense number": defendants_gunlicense_number
+    maxlength: 16
+---
+id: Relationship between plaintiff and defendant
+question: |
+  Relationship between plaintiff and defendant
+fields:
+  - "Plaintiffs defendant married": plaintiffs_defendant_married
+    datatype: yesno
+  - "Plaintiffs defendant former": plaintiffs_defendant_former
+    datatype: yesno
+  - "Plaintiffs defendant": plaintiffs_defendant
+    maxlength: 36
+  - "Plaintiffs defendant household": plaintiffs_defendant_household
+    datatype: yesno
+  - "Plaintiffs defendant dating": plaintiffs_defendant_dating
+    datatype: yesno
+  - "Plaintiffs defendant action": plaintiffs_defendant_action
+    datatype: yesno
+  - "Plaintiffs defendant pending": plaintiffs_defendant_pending
+    datatype: yesno
+  - "Pending case info": pending_case_info
+    maxlength: 31
+---
+id: Acts of abuse
+question: |
+  Acts of abuse
+fields:
+  - "Date of abuse acts": abuse_acts_date
+    datatype: date
+  - "Fear physical harm": fear_physical_harm
+    datatype: yesno
+  - "Defendants physical harm": defendants_physical_harm
+    datatype: yesno
+  - "Cause physical harm": cause_physical_harm
+    datatype: yesno
+  - "Defendants engage force sex": defendants_engage_force_sex
+    datatype: yesno
+---
+id: What do you ask to the Court
+question: |
+  What do you ask to the Court
+fields:
+  - "Court order stop abuse": court_order_stop_abuse
+    datatype: yesno
+  - "Court order stop contact": court_order_stop_contact
+    datatype: yesno
+  - "Court order leave residence": court_order_leave_residence
+    datatype: yesno
+  - "Court order leave workplace": court_order_leave_workplace
+    datatype: yesno
+  - "Court order leave school": court_order_leave_school
+    datatype: yesno
+  - "Court order residence": court_order_residence
+    datatype: yesno
+  - "Court order workplace": court_order_workplace
+    datatype: yesno
+  - "Court order noappear school": court_order_noappear_school
+    datatype: yesno
+  - "Court order pay compensation": court_order_pay_compensation
+    datatype: yesno
+  - "Court order pay support": court_order_pay_support
+    datatype: yesno
+  - "Court order relief children": court_order_relief_children
+    datatype: yesno
+  - "Court order": court_order
+    maxlength: 58
+  - "Court order pick": court_order_pick
+    datatype: yesno
+  - "Court order relief nopayment": court_order_relief_nopayment
+    datatype: yesno
+---
+id: Issues related with children
+question: |
+  Issues related with children
+fields:
+  - "Plaintiffs nochildren": plaintiffs_nochildren
+    datatype: yesno
+  - "Plaintiffs children": plaintiffs_children
+    datatype: yesno
+  - "Children protection actions": children_protection_actions
+    datatype: yesno
+  - "Children protection noaction": children_protection_noaction
+    datatype: yesno
+  - "Children paternity action": children_paternity_action
+    datatype: yesno
+  - "Children paternity noaction": children_paternity_noaction
+    datatype: yesno
+  - "Plaintiffs children custody": plaintiffs_children_custody
+    datatype: yesno
+  - "Children name full custody": children_name_full_custody
+    maxlength: 27
+  - "Children age custody": children_age_custody
+    maxlength: 8
+  - "Children age nocontact": children_age_nocontact
+    maxlength: 8
+  - "Children name full nocontact": children_name_full_nocontact
+    maxlength: 28
+  - "Reasons nocontact request": reasons_nocontact_request
+    maxlength: 54
+  - "Court leave school children": court_leave_school_children
+    datatype: yesno
+  - "Schools name": schools_name
+    maxlength: 81
+---
+id: Other questions
+question: |
+  Other questions
+fields:
+  - "Multiple family residence": multiple_family_residence
+    datatype: yesno
+  - "Compensation payment": compensation_payment
+    maxlength: 10
+---
+id: preview complaint_protection_abuse
+question: |
+  Preview your form before you sign it
+subquestion: |
+  Here is a preview of the form you will sign on the next page.   
+  
+  ${ al_court_bundle.as_pdf(key='preview') }
+
+  Click the image to open it in a new tab. Click the "Edit answers" button
+  to edit your answers.
+
+  ${ action_button_html(url_action('review_complaint_protection_abuse'), label='Edit answers', color='info') }
+  
+  Remember to come back to this window to continue and sign your form.
+continue button field: complaint_protection_abuse_preview_question    
+---
+code: |
+  signature_fields = ['plaintiffs[0].signature']
+---
+code: |
+  # This is a placeholder for the addresses that will be searched
+  # for matching address to court. Edit if court venue is based on 
+  # a different address than the user's
+  addresses_to_search = [user.address for user in users]
+---
+id: complaint protection abuse review screen
+event: review_complaint_protection_abuse
+question: |
+  Review your answers
+review:
+  - Edit: defendants_name_alias
+    button: |
+      **Defendants name alias**:
+      ${ defendants_name_alias }
+  - Edit: plaintiffs_age_older
+    button: |
+      **Plaintiffs age older**:
+      ${ word(yesno(plaintiffs_age_older)) }
+  - Edit: plaintiffs_defendant_married
+    button: |
+      **Plaintiffs defendant married**:
+      ${ word(yesno(plaintiffs_defendant_married)) }
+  - Edit: plaintiffs_defendant_former
+    button: |
+      **Plaintiffs defendant former**:
+      ${ word(yesno(plaintiffs_defendant_former)) }
+  - Edit: representative_relationship
+    button: |
+      **Representative relationship**:
+      ${ representative_relationship }
+  - Edit: plaintiffs_defendant
+    button: |
+      **Plaintiffs defendant**:
+      ${ plaintiffs_defendant }
+  - Edit: defendants_age_older
+    button: |
+      **Defendants age older**:
+      ${ word(yesno(defendants_age_older)) }
+  - Edit: plaintiffs_defendant_household
+    button: |
+      **Plaintiffs defendant household**:
+      ${ word(yesno(plaintiffs_defendant_household)) }
+  - Edit: defendants_gunlicense_number
+    button: |
+      **Defendants gunlicense number**:
+      ${ defendants_gunlicense_number }
+  - Edit: plaintiffs_defendant_dating
+    button: |
+      **Plaintiffs defendant dating**:
+      ${ word(yesno(plaintiffs_defendant_dating)) }
+  - Edit: plaintiffs_nochildren
+    button: |
+      **Plaintiffs nochildren**:
+      ${ word(yesno(plaintiffs_nochildren)) }
+  - Edit: plaintiffs_children
+    button: |
+      **Plaintiffs children**:
+      ${ word(yesno(plaintiffs_children)) }
+  - Edit: plaintiffs_defendant_action
+    button: |
+      **Plaintiffs defendant action**:
+      ${ word(yesno(plaintiffs_defendant_action)) }
+  - Edit: plaintiffs_defendant_pending
+    button: |
+      **Plaintiffs defendant pending**:
+      ${ word(yesno(plaintiffs_defendant_pending)) }
+  - Edit: pending_case_info
+    button: |
+      **Pending case info**:
+      ${ pending_case_info }
+  - Edit: abuse_acts_date
+    button: |
+      **Date of abuse acts**:
+      ${ abuse_acts_date }
+  - Edit: fear_physical_harm
+    button: |
+      **Fear physical harm**:
+      ${ word(yesno(fear_physical_harm)) }
+  - Edit: defendants_physical_harm
+    button: |
+      **Defendants physical harm**:
+      ${ word(yesno(defendants_physical_harm)) }
+  - Edit: cause_physical_harm
+    button: |
+      **Cause physical harm**:
+      ${ word(yesno(cause_physical_harm)) }
+  - Edit: defendants_engage_force_sex
+    button: |
+      **Defendants engage force sex**:
+      ${ word(yesno(defendants_engage_force_sex)) }
+  - Edit: court_order_stop_abuse
+    button: |
+      **Court order stop abuse**:
+      ${ word(yesno(court_order_stop_abuse)) }
+  - Edit: court_order_stop_contact
+    button: |
+      **Court order stop contact**:
+      ${ word(yesno(court_order_stop_contact)) }
+  - Edit: court_order_leave_residence
+    button: |
+      **Court order leave residence**:
+      ${ word(yesno(court_order_leave_residence)) }
+  - Edit: multiple_family_residence
+    button: |
+      **Multiple family residence**:
+      ${ word(yesno(multiple_family_residence)) }
+  - Edit: court_order_leave_workplace
+    button: |
+      **Court order leave workplace**:
+      ${ word(yesno(court_order_leave_workplace)) }
+  - Edit: court_order_leave_school
+    button: |
+      **Court order leave school**:
+      ${ word(yesno(court_order_leave_school)) }
+  - Edit: court_order_residence
+    button: |
+      **Court order residence**:
+      ${ word(yesno(court_order_residence)) }
+  - Edit: court_order_workplace
+    button: |
+      **Court order workplace**:
+      ${ word(yesno(court_order_workplace)) }
+  - Edit: court_order_noappear_school
+    button: |
+      **Court order noappear school**:
+      ${ word(yesno(court_order_noappear_school)) }
+  - Edit: compensation_payment
+    button: |
+      **Compensation payment**:
+      ${ compensation_payment }
+  - Edit: court_order_pay_compensation
+    button: |
+      **Court order pay compensation**:
+      ${ word(yesno(court_order_pay_compensation)) }
+  - Edit: court_order_pay_support
+    button: |
+      **Court order pay support**:
+      ${ word(yesno(court_order_pay_support)) }
+  - Edit: court_order_relief_children
+    button: |
+      **Court order relief children**:
+      ${ word(yesno(court_order_relief_children)) }
+  - Edit: court_order
+    button: |
+      **Court order**:
+      ${ court_order }
+  - Edit: court_order_pick
+    button: |
+      **Court order pick**:
+      ${ word(yesno(court_order_pick)) }
+  - Edit: court_order_relief_nopayment
+    button: |
+      **Court order relief nopayment**:
+      ${ word(yesno(court_order_relief_nopayment)) }
+  - Edit: children_protection_actions
+    button: |
+      **Children protection actions**:
+      ${ word(yesno(children_protection_actions)) }
+  - Edit: children_protection_noaction
+    button: |
+      **Children protection noaction**:
+      ${ word(yesno(children_protection_noaction)) }
+  - Edit: children_paternity_action
+    button: |
+      **Children paternity action**:
+      ${ word(yesno(children_paternity_action)) }
+  - Edit: children_paternity_noaction
+    button: |
+      **Children paternity noaction**:
+      ${ word(yesno(children_paternity_noaction)) }
+  - Edit: plaintiffs_children_custody
+    button: |
+      **Plaintiffs children custody**:
+      ${ word(yesno(plaintiffs_children_custody)) }
+  - Edit: children_name_full_custody
+    button: |
+      **Children name full custody**:
+      ${ children_name_full_custody }
+  - Edit: children_age_custody
+    button: |
+      **Children age custody**:
+      ${ children_age_custody }
+  - Edit: children_age_nocontact
+    button: |
+      **Children age nocontact**:
+      ${ children_age_nocontact }
+  - Edit: children_name_full_nocontact
+    button: |
+      **Children name full nocontact**:
+      ${ children_name_full_nocontact }
+  - Edit: reasons_nocontact_request
+    button: |
+      **Reasons nocontact request**:
+      ${ reasons_nocontact_request }
+  - Edit: court_leave_school_children
+    button: |
+      **Court leave school children**:
+      ${ word(yesno(court_leave_school_children)) }
+  - Edit: schools_name
+    button: |
+      **Schools name**:
+      ${ schools_name }
+  - Edit: docket_number
+    button: |
+      **docket_number**:
+      ${ docket_number }
+  - Edit: defendants.revisit
+    button: |
+      **Defendants**
+
+      % for item in defendants:
+        * ${ item }
+      % endfor
+  - Edit: plaintiffs.revisit
+    button: |
+      **Plaintiffs**
+
+      % for item in plaintiffs:
+        * ${ item }
+      % endfor
+  - Edit: signature_date
+    button: |
+      **signature_date**:
+      ${ signature_date }
+---
+continue button field: defendants.revisit
+question: |
+  Edit defendants
+subquestion: |
+  ${ defendants.table }
+
+  ${ defendants.add_action() }
+---
+table: defendants.table
+rows: defendants
+columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+  - Gender male: |
+      row_item.gender_male if defined("row_item.gender_male") else ""
+  - Gender female: |
+      row_item.gender_female if defined("row_item.gender_female") else ""
+edit:
+  - name.first
+  - gender_male
+  - gender_female
+confirm: True
+
+---
+continue button field: plaintiffs.revisit
+question: |
+  Edit plaintiffs
+subquestion: |
+  ${ plaintiffs.table }
+
+  ${ plaintiffs.add_action() }
+---
+table: plaintiffs.table
+rows: plaintiffs
+columns:
+  - Name: |
+      row_item.name.full() if defined("row_item.name.first") else ""
+  - Birthdate: |
+      row_item.birthdate if defined("row_item.birthdate") else ""
+  - Signature: |
+      row_item.signature if defined("row_item.signature") else ""
+edit:
+  - name.first
+  - birthdate
+  - signature
+confirm: True
+
+---
+id: download complaint_protection_abuse
+event: complaint_protection_abuse_download
+question: |
+  All done
+subquestion: |
+  Thank you ${users}. Your form is ready to download and deliver.
+  
+  View, download and send your form below. Click the "Edit answers" button to fix any mistakes.
+
+  ${ action_button_html(url_action('review_complaint_protection_abuse'), label='Edit answers', color='info') }
+  
+  
+  ${ al_user_bundle.download_list_html() }
+  
+
+  ${ al_user_bundle.send_button_html(show_editable_checkbox=False) }
+
+progress: 100
+---
+objects:
+  - complaint_protection_abuse_post_interview_instructions: ALDocument.using(title="Instructions", filename="complaint_protection_abuse_next_steps.docx", enabled=True, has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+  - complaint_protection_abuse_attachment: ALDocument.using(title="Complaint for protection from abuse", filename="complaint_protection_abuse.pdf", enabled=True, has_addendum=False, default_overflow_message=AL_DEFAULT_OVERFLOW_MESSAGE)
+---
+objects:
+  - al_user_bundle: ALDocumentBundle.using(elements=[complaint_protection_abuse_post_interview_instructions,complaint_protection_abuse_attachment], filename="complaint_protection_abuse.pdf_package.pdf", title="All forms to download for your records", enabled=True)
+  - al_court_bundle: ALDocumentBundle.using(elements=[complaint_protection_abuse_attachment], filename="complaint_protection_abuse.pdf_package.pdf", title="All forms to download for your records", enabled=True)
+---
+attachments:
+  - name: complaint protection abuse post interview instructions
+    filename: Post-interview-instructions     
+    variable name: complaint_protection_abuse_post_interview_instructions[i]        
+    skip undefined: True
+    docx template file: complaint_protection_abuse_next_steps.docx
+  - name: complaint protection abuse attachment
+    filename: complaint_protection_abuse.pdf     
+    variable name: complaint_protection_abuse_attachment[i]        
+    skip undefined: True
+    pdf template file: complaint_protection_abuse.pdf
+    fields:
+      - "docket_number__1": ${ docket_number }
+      - "docket_number__2": ${ docket_number }
+      - "defendants_name_full": ${ defendants[0] }
+      - "plaintiffs_name_full__1": ${ plaintiffs[0] }
+      - "plaintiffs_name_full__2": ${ plaintiffs[0] }
+      - "defendants_gender_male": ${ defendants[0].gender_male }
+      - "defendants_gender_female": ${ defendants[0].gender_female }
+      - "plaintiffs_age": ${ plaintiffs[0].age_in_years() }
+      - "plaintiffs_signature__1": ${ plaintiffs[0].signature_if_final(i) }
+      - "plaintiffs_signature__2": ${ plaintiffs[0].signature_if_final(i) }
+      - "signature_date__1": ${ signature_date }
+      - "signature_date__2": ${ signature_date }
+      - "defendants_name_alias": ${ defendants_name_alias }
+      - "plaintiffs_age_older": ${ plaintiffs_age_older }
+      - "plaintiffs_defendant_married__1": ${ plaintiffs_defendant_married }
+      - "plaintiffs_defendant_married__2": ${ plaintiffs_defendant_married }
+      - "plaintiffs_defendant_former__1": ${ plaintiffs_defendant_former }
+      - "plaintiffs_defendant_former__2": ${ plaintiffs_defendant_former }
+      - "representative_relationship": ${ representative_relationship }
+      - "plaintiffs_defendant__1": ${ plaintiffs_defendant }
+      - "plaintiffs_defendant__2": ${ plaintiffs_defendant }
+      - "defendants_age_older": ${ defendants_age_older }
+      - "plaintiffs_defendant_household": ${ plaintiffs_defendant_household }
+      - "defendants_gunlicense_number": ${ defendants_gunlicense_number }
+      - "plaintiffs_defendant_dating": ${ plaintiffs_defendant_dating }
+      - "plaintiffs_nochildren": ${ plaintiffs_nochildren }
+      - "plaintiffs_children": ${ plaintiffs_children }
+      - "plaintiffs_defendant_action": ${ plaintiffs_defendant_action }
+      - "plaintiffs_defendant_pending": ${ plaintiffs_defendant_pending }
+      - "pending_case_info": ${ pending_case_info }
+      - "abuse_acts_date": ${ abuse_acts_date }
+      - "fear_physical_harm": ${ fear_physical_harm }
+      - "defendants_physical_harm": ${ defendants_physical_harm }
+      - "cause_physical_harm": ${ cause_physical_harm }
+      - "defendants_engage_force_sex": ${ defendants_engage_force_sex }
+      - "court_order_stop_abuse": ${ court_order_stop_abuse }
+      - "court_order_stop_contact": ${ court_order_stop_contact }
+      - "court_order_leave_residence": ${ court_order_leave_residence }
+      - "multiple_family_residence": ${ multiple_family_residence }
+      - "court_order_leave_workplace": ${ court_order_leave_workplace }
+      - "court_order_leave_school": ${ court_order_leave_school }
+      - "court_order_residence": ${ court_order_residence }
+      - "court_order_workplace": ${ court_order_workplace }
+      - "court_order_noappear_school": ${ court_order_noappear_school }
+      - "compensation_payment": ${ compensation_payment }
+      - "court_order_pay_compensation": ${ court_order_pay_compensation }
+      - "court_order_pay_support": ${ court_order_pay_support }
+      - "court_order_relief_children": ${ court_order_relief_children }
+      - "court_order": ${ court_order }
+      - "court_order_pick": ${ court_order_pick }
+      - "court_order_relief_nopayment": ${ court_order_relief_nopayment }
+      - "children_protection_actions": ${ children_protection_actions }
+      - "children_protection_noaction": ${ children_protection_noaction }
+      - "children_paternity_action": ${ children_paternity_action }
+      - "children_paternity_noaction": ${ children_paternity_noaction }
+      - "plaintiffs_children_custody": ${ plaintiffs_children_custody }
+      - "children_name_full_custody__6": ${ children_name_full_custody }
+      - "children_name_full_custody__1": ${ children_name_full_custody }
+      - "children_name_full_custody__2": ${ children_name_full_custody }
+      - "children_name_full_custody__7": ${ children_name_full_custody }
+      - "children_name_full_custody__3": ${ children_name_full_custody }
+      - "children_name_full_custody__8": ${ children_name_full_custody }
+      - "children_name_full_custody__4": ${ children_name_full_custody }
+      - "children_name_full_custody__9": ${ children_name_full_custody }
+      - "children_name_full_custody__5": ${ children_name_full_custody }
+      - "children_name_full_custody__10": ${ children_name_full_custody }
+      - "children_age_custody__1": ${ children_age_custody }
+      - "children_age_custody__6": ${ children_age_custody }
+      - "children_age_custody__7": ${ children_age_custody }
+      - "children_age_custody__2": ${ children_age_custody }
+      - "children_age_custody__8": ${ children_age_custody }
+      - "children_age_custody__3": ${ children_age_custody }
+      - "children_age_custody__4": ${ children_age_custody }
+      - "children_age_custody__9": ${ children_age_custody }
+      - "children_age_custody__5": ${ children_age_custody }
+      - "children_age_custody__10": ${ children_age_custody }
+      - "children_age_nocontact__1": ${ children_age_nocontact }
+      - "children_age_nocontact__6": ${ children_age_nocontact }
+      - "children_age_nocontact__2": ${ children_age_nocontact }
+      - "children_age_nocontact__7": ${ children_age_nocontact }
+      - "children_age_nocontact__3": ${ children_age_nocontact }
+      - "children_age_nocontact__8": ${ children_age_nocontact }
+      - "children_age_nocontact__4": ${ children_age_nocontact }
+      - "children_age_nocontact__9": ${ children_age_nocontact }
+      - "children_age_nocontact__5": ${ children_age_nocontact }
+      - "children_age_nocontact__10": ${ children_age_nocontact }
+      - "children_name_full_nocontact__6": ${ children_name_full_nocontact }
+      - "children_name_full_nocontact__1": ${ children_name_full_nocontact }
+      - "children_name_full_nocontact__2": ${ children_name_full_nocontact }
+      - "children_name_full_nocontact__7": ${ children_name_full_nocontact }
+      - "children_name_full_nocontact__3": ${ children_name_full_nocontact }
+      - "children_name_full_nocontact__8": ${ children_name_full_nocontact }
+      - "children_name_full_nocontact__9": ${ children_name_full_nocontact }
+      - "children_name_full_nocontact__4": ${ children_name_full_nocontact }
+      - "children_name_full_nocontact__5": ${ children_name_full_nocontact }
+      - "children_name_full_nocontact__10": ${ children_name_full_nocontact }
+      - "reasons_nocontact_request": ${ reasons_nocontact_request }
+      - "court_leave_school_children": ${ court_leave_school_children }
+      - "schools_name": ${ schools_name }
