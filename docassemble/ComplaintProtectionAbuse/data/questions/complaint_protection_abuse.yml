@@ -70,8 +70,8 @@ code: |
   nav.set_section('review_complaint_protection_abuse')
   user_role = 'plaintiff'
   plaintiffs.gather()
-  plaintiffs[0].birthdate
   plaintiffs_age_older
+  plaintiffs[0].birthdate
   set_progress(14)
   defendants.gather()
   defendants[0].gender_male
@@ -113,95 +113,111 @@ continue button field: complaint_protection_abuse_intro
 question: |
   Complaint for protection from abuse
 subquestion: |
-  You will need information of the person accused of abuse, any minor you want to protected and your own information.
+  **If you are in danger right now, call 911.**
+
+  Please make sure you are in a safe place. The process to complete this complaint for protection from abuse form can take up to 1 and 1/2 hours to answer all the questions.
+
+  A complaint can help to protect you or a minor from an abusive partner, a family member, or someone in your household. It can also order the abusive person to do things like pay a compensation amount or child support.
+  
+  If the abusive person does not obey the order, they “violate” it. It is a crime and the police can arrest them. 
 ---
 id: Plantiff information
 question: |
-  Plantiff information
+  Before continue we need more information about you 
+subquestion: |
+  We can only help people under 18 if a parent, guardian, or advocate files the complaint for them.
 fields:
-  - "Plaintiffs age older": plaintiffs_age_older
-    datatype: yesno
-  - "Representative relationship": representative_relationship
-    maxlength: 14
+  - "Are you under 18?" : plaintiffs_age_older
+    datatype: yesnoradio
+  - "Someone has helped you to fill out this form?" : representative_help
+    datatype: yesnoradio
+    show if: plaintiffs_age_older 
+  - "What is the relationship between you and the person who is helping you to fill out this form?" : representative_relationship
+    show if: representative_help
 ---
 id: Information about the defendant
 question: |
-  Information about the defendant
+  Can you share with us more information about ${defendants}?
 fields:
-  - "Defendants age older": defendants_age_older
-    datatype: yesno
-  - "Defendants name alias": defendants_name_alias
-    maxlength: 18
-  - "Defendants gunlicense number": defendants_gunlicense_number
+  - "Is ${defendants} 18 or older?": defendants_age_older
+    datatype: yesnoradio
+  - "Do you know if ${defendants} has an alias name?": is_defendants_name_alias
+    datatype: yesnoradio
+  - "What is the alias name?": defendants_name_alias
+    show if: is_defendants_name_alias
+  - "Do you know if ${defendants} possesses any guns or firearms ID card?": defendants_gunlicense_number
     maxlength: 16
 ---
 id: Relationship between plaintiff and defendant
 question: |
-  Relationship between plaintiff and defendant
+ Are you currently married with ${defendants}?
+yesno: plaintiffs_defendant_married
+---
+question: | 
+  other questions...
 fields:
-  - "Plaintiffs defendant married": plaintiffs_defendant_married
-    datatype: yesno
-  - "Plaintiffs defendant former": plaintiffs_defendant_former
-    datatype: yesno
-  - "Plaintiffs defendant": plaintiffs_defendant
-    maxlength: 36
-  - "Plaintiffs defendant household": plaintiffs_defendant_household
-    datatype: yesno
-  - "Plaintiffs defendant dating": plaintiffs_defendant_dating
-    datatype: yesno
+  - "No, we were married but not anymore": plaintiffs_defendant_former
+  - "We are not related but we live in the same household": plaintiffs_defendant_household
+  - "We are or were in a dating or engagement relationship": plaintiffs_defendant_dating
+  -  "Plaintiffs defendant": plaintiffs_defendant
+---
+id: Pending actions between parties
+question: |
+  Actions between parties
+fields:
   - "Plaintiffs defendant action": plaintiffs_defendant_action
-    datatype: yesno
-  - "Plaintiffs defendant pending": plaintiffs_defendant_pending
-    datatype: yesno
+    datatype: yesnoradio
+  - "Are there any prior or pending court actions in any non-tribal court involving the Plaintiff and the Defendant for divorce, annulment, separate support, legal separation or abuse prevention?": plaintiffs_defendant_pending
+    datatype: yesnoradio
   - "Pending case info": pending_case_info
     maxlength: 31
 ---
 id: Acts of abuse
 question: |
-  Acts of abuse
+  Tell us more about what acts of abuse have you suffered and when they happened:
 fields:
-  - "Date of abuse acts": abuse_acts_date
+  - "Last date of abuse acts": abuse_acts_date
     datatype: date
-  - "Fear physical harm": fear_physical_harm
+  - "The Defendants placed me in fear of imminent serious physical harm": fear_physical_harm
     datatype: yesno
-  - "Defendants physical harm": defendants_physical_harm
+  - "The Defendant attempted to cause me physical harm": defendants_physical_harm
     datatype: yesno
-  - "Cause physical harm": cause_physical_harm
+  - "The Defendant caused me physical harm": cause_physical_harm
     datatype: yesno
-  - "Defendants engage force sex": defendants_engage_force_sex
+  - "The Defendants caused me to engage in sexual relations by force, threat or duress": defendants_engage_force_sex
     datatype: yesno
 ---
 id: What do you ask to the Court
 question: |
-  What do you ask to the Court
+  Please let us know what measures do you ask to the Court:
 fields:
-  - "Court order stop abuse": court_order_stop_abuse
+  - "To order the Defendant to stop abusing me by harming, threatening or attempting to harm me physically, or placing me in fear of imminent serious physical harm, or by using force threat or duress to make me engage in sexual relations.": court_order_stop_abuse
     datatype: yesno
-  - "Court order stop contact": court_order_stop_contact
+  - "To order Defendant not to contact me, unless authorized to do so by the Court": court_order_stop_contact
     datatype: yesno
-  - "Court order leave residence": court_order_leave_residence
+  - "To order the Defendant to leave and remain away from the rence": court_order_leave_residence
     datatype: yesno
-  - "Court order leave workplace": court_order_leave_workplace
+  - "To order the Defendant to leave and remain away from my workplace": court_order_leave_workplace
     datatype: yesno
-  - "Court order leave school": court_order_leave_school
+  - "To order the Defendant to leave and remain away from my school": court_order_leave_school
     datatype: yesno
-  - "Court order residence": court_order_residence
+  - "To order that my residential address not appear on the order": court_order_residence
     datatype: yesno
-  - "Court order workplace": court_order_workplace
+  - "To order that my workplace address not appear on the order.": court_order_workplace
     datatype: yesno
-  - "Court order noappear school": court_order_noappear_school
+  - "To order that my school address not appear on the order.": court_order_noappear_school
     datatype: yesno
   - "Court order pay compensation": court_order_pay_compensation
     datatype: yesno
-  - "Court order pay support": court_order_pay_support
+  - "To order the Defendant, who has a legal obligaƟon to do so, to pay temporary support to me": court_order_pay_support
     datatype: yesno
   - "Court order relief children": court_order_relief_children
     datatype: yesno
-  - "Court order": court_order
-    maxlength: 58
   - "Court order pick": court_order_pick
     datatype: yesno
-  - "Court order relief nopayment": court_order_relief_nopayment
+  - "Other court order": court_order
+    maxlength: 58
+  - "To order the relief I have requested, except for temporary support for me and/or my child(ren) and for compensation for losses suffered, without advance notice to the Defendant because there is a substantial likelihood of immediate danger of abuse.": court_order_relief_nopayment
     datatype: yesno
 ---
 id: Issues related with children
