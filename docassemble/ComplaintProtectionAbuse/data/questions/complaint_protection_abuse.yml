@@ -68,10 +68,12 @@ code: |
   # Set the allowed courts for this interview
   allowed_courts = interview_metadata["complaint_protection_abuse"]["allowed courts"]
   nav.set_section('review_complaint_protection_abuse')
+  people_protected
   user_role = 'plaintiff'
   plaintiffs.gather()
   plaintiffs_age_older
   plaintiffs[0].birthdate
+  plaintiffs_address_block 
   set_progress(14)
   defendants.gather()
   defendants[0].gender_male
@@ -87,6 +89,7 @@ code: |
   set_progress(57)
   docket_number
   signature_date
+  users.there_is_another = False
   interview_order_complaint_protection_abuse = True
 ---
 ###################### Main order ######################
@@ -121,6 +124,24 @@ subquestion: |
   
   If the abusive person does not obey the order, they “violate” it. It is a crime and the police can arrest them. 
 ---
+id: Request on behalf of another person
+question: |
+  Who do you want to protect by filing this complaint?
+fields:
+   - Type: people_protected
+     input type: radio
+     choices:
+      - I need it for my protection
+      - I need it for me and my child or children´s protection
+      - I am helping someone else who needs the protection
+---
+id: birthdate question
+question: |
+  When were you born?
+fields:
+  - Birthdate: plaintiffs[0].birthdate
+    datatype: BirthDate
+---
 id: Plantiff information
 question: |
   Before continue we need more information about you 
@@ -135,9 +156,57 @@ fields:
   - "What is the relationship between you and the person who is helping you to fill out this form?" : representative_relationship
     show if: representative_help
 ---
+id: Plaintiff confidential form info 1
+question: |
+  Before continue we need more information about you.. 
+subquestion: |
+  The following information will be available only to you, to your attorney, to those you authorize to have access and to certain persons when access is necessary in the performance of their duties, for example for domestic violence counselors.
+fields: 
+  - Current residential address: plaintiffs_address_block
+  - Is it an apartment building or multiple dwelling?: multiple_dwelling 
+    datatype: yesnoradio
+  - Had you ever changed your residence before to avoid abuse?: residence_change
+    datatype: yesnoradio
+  - note: Please share with us the address of the last residence you changed to avoid abuse
+  - Former residential address: former_residence_changed
+    show if: residence_change
+---
+id: is there an opposing party?
+question: |
+  % if al_form_type in ['starts_case','existing_case','appeal'] and user_started_case:
+  Is there a person abusing you? 
+  % elif al_form_type in ['starts_case','existing_case','appeal']:
+  Is there a **plaintiff** or petitioner in this case?
+  % else:
+  Is there someone on the other side of your dispute?
+  % endif
+subquestion: |
+  % if al_form_type in ['starts_case','existing_case','appeal'] and user_started_case:
+  Answer yes if there is a person you want to stop abusing you.
+  % elif al_form_type in ['starts_case','existing_case','appeal']:
+  You should be able to find out from the paperwork that told you to 
+  go to court.
+
+  Answer yes if someone else has sued you or is bringing you to court.
+  % endif
+fields:
+  - no label: other_parties.there_are_any
+    datatype: yesnoradio
+---
+id: names of opposing parties
+question: |
+  % if users==plaintiffs:
+  What is the name of the person abusing you?
+  % else:
+  Name of ${ ordinal(i) } **plaintiff** or petitioner in this matter
+  % endif
+fields:
+  - code: |
+      defendants[i].name_fields
+---
 id: Information about the defendant
 question: |
-  Can you share with us more information about ${defendants}?
+  Can you share with us more information about ${defendants[0].name.first}?
 fields:
   - "Is ${defendants} 18 or older?": defendants_age_older
     datatype: yesnoradio
@@ -174,33 +243,40 @@ fields:
 ---
 id: Acts of abuse
 question: |
-  Tell us more about what acts of abuse have you suffered and when they happened:
+  About the abuse
+subquestion:  | 
+  Can you tell us when was the last time ${defendants} abused you?
 fields:
-  - "Last date of abuse acts": abuse_acts_date
+  - "Last date of abusive acts. It is okay to give an approximate date": abuse_acts_date
     datatype: date
-  - "The Defendants placed me in fear of imminent serious physical harm": fear_physical_harm
+  - note: Please check every situation that you experienced at that time
+  - "${defendants} made you scared of getting physically harm": fear_physical_harm
     datatype: yesno
-  - "The Defendant attempted to cause me physical harm": defendants_physical_harm
+  - "${defendants} tried to hurt you physically": defendants_physical_harm
     datatype: yesno
-  - "The Defendant caused me physical harm": cause_physical_harm
+  - "${defendants} caused you physical harm": cause_physical_harm
     datatype: yesno
-  - "The Defendants caused me to engage in sexual relations by force, threat or duress": defendants_engage_force_sex
+  - "${defendants} made you have sex or sexual contact by making you feel that you have no choice": defendants_engage_force_sex
     datatype: yesno
 ---
 id: What do you ask to the Court
 question: |
   Please let us know what measures do you ask to the Court:
+subquestion: |
+  We invite you to always check the box on the form that asks the court to order ${defendants} to stop abusing you.
 fields:
-  - "To order the Defendant to stop abusing me by harming, threatening or attempting to harm me physically, or placing me in fear of imminent serious physical harm, or by using force threat or duress to make me engage in sexual relations.": court_order_stop_abuse
+  - "Yes, I want the Court to order ${defendants} to stop abusing me in any way": court_order_stop_abuse
     datatype: yesno
-  - "To order Defendant not to contact me, unless authorized to do so by the Court": court_order_stop_contact
+  - note:  Is there any of the following actions that you also want to ask to the Court?  
+  - "To order ${defendants} not to contact me, unless authorized to do so by the Court": court_order_stop_contact
     datatype: yesno
-  - "To order the Defendant to leave and remain away from the rence": court_order_leave_residence
+  - "To order ${defendants} to leave and stay away from my home": court_order_leave_residence
     datatype: yesno
-  - "To order the Defendant to leave and remain away from my workplace": court_order_leave_workplace
+  - "To order ${defendants} to leave and stay away from my work": court_order_leave_workplace
     datatype: yesno
-  - "To order the Defendant to leave and remain away from my school": court_order_leave_school
+  - "To order ${defendants} to leave and stay away from my school": court_order_leave_school
     datatype: yesno
+  - note: For your prtection, you can ask the Court to order that your address does not appear in the order
   - "To order that my residential address not appear on the order": court_order_residence
     datatype: yesno
   - "To order that my workplace address not appear on the order.": court_order_workplace
@@ -252,6 +328,40 @@ fields:
     datatype: yesno
   - "Schools name": schools_name
     maxlength: 81
+---
+id: Number of children for custody
+question: | 
+  How many children do you want to seek custody for?
+fields:
+  - Number of children: children_custody
+    choices: 
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      - 8
+      - 9
+      - 10
+---
+id: Number of children to ask the Court not to contact
+question: | 
+  How many children do you want to ask the Court to order ${defendants} not to contact the following minor child or children unless authorized to do so by the Court:?
+fields:
+  - Number of children: children_nocontact
+    choices: 
+      - 1
+      - 2
+      - 3
+      - 4
+      - 5
+      - 6
+      - 7
+      - 8
+      - 9
+      - 10
 ---
 id: Other questions
 question: |
