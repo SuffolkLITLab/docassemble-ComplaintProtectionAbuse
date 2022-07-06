@@ -73,14 +73,21 @@ code: |
   plaintiffs.gather()
   plaintiffs_age_older
   plaintiffs[0].birthdate
-  plaintiffs_address_block 
   set_progress(14)
   defendants.gather()
   defendants[0].gender_male
   defendants[0].gender_female
   set_progress(28)
   defendants_age_older
+  user_saw_intro_one
   plaintiffs_defendant_married
+  plaintiffs_defendant_former_married
+  plaintiffs_defendant_dating
+  plaintiffs1_defendant_pending_action
+  plaintiffs_defendant_household
+  plaintiffs_defendant_former_household
+  plaintiffs_defendant_parenthood
+  plaintiffs_defendant_not_married
   abuse_acts_date
   set_progress(42)
   court_order_stop_abuse
@@ -89,7 +96,6 @@ code: |
   set_progress(57)
   docket_number
   signature_date
-  users.there_is_another = False
   interview_order_complaint_protection_abuse = True
 ---
 ###################### Main order ######################
@@ -135,13 +141,6 @@ fields:
       - I need it for me and my child or children´s protection
       - I am helping someone else who needs the protection
 ---
-id: birthdate question
-question: |
-  When were you born?
-fields:
-  - Birthdate: plaintiffs[0].birthdate
-    datatype: BirthDate
----
 id: Plantiff information
 question: |
   Before continue we need more information about you 
@@ -156,79 +155,73 @@ fields:
   - "What is the relationship between you and the person who is helping you to fill out this form?" : representative_relationship
     show if: representative_help
 ---
-id: Plaintiff confidential form info 1
-question: |
-  Before continue we need more information about you.. 
-subquestion: |
-  The following information will be available only to you, to your attorney, to those you authorize to have access and to certain persons when access is necessary in the performance of their duties, for example for domestic violence counselors.
-fields: 
-  - Current residential address: plaintiffs_address_block
-  - Is it an apartment building or multiple dwelling?: multiple_dwelling 
-    datatype: yesnoradio
-  - Had you ever changed your residence before to avoid abuse?: residence_change
-    datatype: yesnoradio
-  - note: Please share with us the address of the last residence you changed to avoid abuse
-  - Former residential address: former_residence_changed
-    show if: residence_change
----
-id: is there an opposing party?
-question: |
-  % if al_form_type in ['starts_case','existing_case','appeal'] and user_started_case:
-  Is there a person abusing you? 
-  % elif al_form_type in ['starts_case','existing_case','appeal']:
-  Is there a **plaintiff** or petitioner in this case?
-  % else:
-  Is there someone on the other side of your dispute?
-  % endif
-subquestion: |
-  % if al_form_type in ['starts_case','existing_case','appeal'] and user_started_case:
-  Answer yes if there is a person you want to stop abusing you.
-  % elif al_form_type in ['starts_case','existing_case','appeal']:
-  You should be able to find out from the paperwork that told you to 
-  go to court.
-
-  Answer yes if someone else has sued you or is bringing you to court.
-  % endif
-fields:
-  - no label: other_parties.there_are_any
-    datatype: yesnoradio
----
-id: names of opposing parties
-question: |
-  % if users==plaintiffs:
-  What is the name of the person abusing you?
-  % else:
-  Name of ${ ordinal(i) } **plaintiff** or petitioner in this matter
-  % endif
-fields:
-  - code: |
-      defendants[i].name_fields
----
 id: Information about the defendant
 question: |
   Can you share with us more information about ${defendants[0].name.first}?
 fields:
-  - "Is ${defendants} 18 or older?": defendants_age_older
+  - "Is ${defendants[0].name.first} 18 or older?": defendants_age_older
     datatype: yesnoradio
-  - "Do you know if ${defendants} has an alias name?": is_defendants_name_alias
+  - "Do you know if ${defendants[0].name.first} uses any other name?": is_defendants_name_alias
     datatype: yesnoradio
-  - "What is the alias name?": defendants_name_alias
+  - "What is the other name used by ${defendants[0].name.first}?": defendants_name_alias
     show if: is_defendants_name_alias
-  - "Do you know if ${defendants} possesses any guns or firearms ID card?": defendants_gunlicense_number
-    maxlength: 16
+  - note: We want to protect you, for this reason is very important that we know if ${defendants[0].name.first} has access to any kind of guns or firearms
+  - "Do you know if ${defendants[0].name.first} possesses any guns or firearms ID card?": is_defendants_guns
+    datatype: yesnoradio
+  - Do you want to share any additional information about this?: defendants_gunlicense_number
+    input type: area
+    show if: is_defendants_guns
 ---
-id: Relationship between plaintiff and defendant
+id: Relationship between plaintiff and defendant 
 question: |
- Are you currently married with ${defendants}?
-yesno: plaintiffs_defendant_married
+  We want to know more about your relationship with ${defendants[0].name.first}
+subquestion: |
+  You may think you are not members of the same family or household with ${defendants[0].name.first}, but the law may say you are.
+  
+   Please answer the following questions selecting the fields that describes better your relationship with ${defendants[0].name.first} to find out what it is.
+continue button field: user_saw_intro_one
 ---
-question: | 
-  other questions...
+question: |
+  Have you ever had a sentimental relationship with ${defendants[0].name.first}?
 fields:
-  - "No, we were married but not anymore": plaintiffs_defendant_former
-  - "We are not related but we live in the same household": plaintiffs_defendant_household
-  - "We are or were in a dating or engagement relationship": plaintiffs_defendant_dating
-  -  "Plaintiffs defendant": plaintiffs_defendant
+  - note: Please select the option that describes better your current relation with ${defendants[0].name.first}
+  - I am currently married with ${defendants[0].name.first}: plaintiffs_defendant_married
+    datatype: yesno
+  - ${defendants[0].name.first} and I were married but not anymore: plaintiffs_defendant_former_married
+    datatype: yesno
+  - I am or was engaged or dated with ${defendants[0].name.first}: plaintiffs_defendant_dating
+    datatype: yesno
+---
+question: |
+  Pending Court actions in any non-tribal court 
+fields:
+  - note: Are there any prior or pending court actions in any non-tribal court between you and ${defendants[0].name.first} for divorce, annulment, separate support, legal separation or abuse prevention?
+  - Pending actions: plaintiffs1_defendant_pending_action
+    datatype: yesnoradio
+  - note: Please share with us more information about any pending court action such as type of case, date, docket number or an other relevant data
+    show if: plaintiffs1_defendant_pending_action
+  - Additional info of pendind cases: pending_case_info
+    datatype: area
+    show if: plaintiffs1_defendant_pending_action
+---
+question: |
+  Have you ever lived in the same household with ${defendants[0].name.first}?
+fields:
+  - note: Please select the option that describes better your current situation with Joe
+  - ${defendants[0].name.first} and I live in the same household and we are not related: plaintiffs_defendant_household
+    datatype: yesno
+  - ${defendants[0].name.first} and I lived in the same household but not anymore: plaintiffs_defendant_former_household
+    datatype: yesno
+---
+question: |
+  Is there any other relationship between you and ${defendants[0].name.first}?
+fields:
+  - I have one child or more with ${defendants[0].name.first}: plaintiffs_defendant_parenthood
+    datatype: yesno
+  - ${defendants[0].name.first} and I are family relatives or we have an in-law relationship: plaintiffs_defendant_not_married
+    datatype: yesno
+  - What is your relationship between you and ${defendants[0].name.first}: plaintiffs1_defendant_relationship
+    show if: plaintiffs_defendant_not_married
 ---
 id: Pending actions between parties
 question: |
@@ -245,18 +238,18 @@ id: Acts of abuse
 question: |
   About the abuse
 subquestion:  | 
-  Can you tell us when was the last time ${defendants} abused you?
+  Can you tell us when was the last time ${defendants[0].name.first} abused you?
 fields:
-  - "Last date of abusive acts. It is okay to give an approximate date": abuse_acts_date
+  - Last date of abusive acts: abuse_acts_date
     datatype: date
-  - note: Please check every situation that you experienced at that time
-  - "${defendants} made you scared of getting physically harm": fear_physical_harm
+  - note: Please choose every situation that you experienced at that time
+  - "${defendants[0].name.first} made you scared of getting physically harm": fear_physical_harm
     datatype: yesno
-  - "${defendants} tried to hurt you physically": defendants_physical_harm
+  - "${defendants[0].name.first} tried to hurt you physically": defendants_physical_harm
     datatype: yesno
-  - "${defendants} caused you physical harm": cause_physical_harm
+  - "${defendants[0].name.first} caused you physical harm": cause_physical_harm
     datatype: yesno
-  - "${defendants} made you have sex or sexual contact by making you feel that you have no choice": defendants_engage_force_sex
+  - "${defendants[0].name.first} made you have sex or sexual contact by making you feel that you have no choice": defendants_engage_force_sex
     datatype: yesno
 ---
 id: What do you ask to the Court
@@ -414,18 +407,18 @@ review:
     button: |
       **Plaintiffs defendant married**:
       ${ word(yesno(plaintiffs_defendant_married)) }
-  - Edit: plaintiffs_defendant_former
+  - Edit: plaintiffs_defendant_former_married
     button: |
-      **Plaintiffs defendant former**:
-      ${ word(yesno(plaintiffs_defendant_former)) }
+      **Plaintiffs defendant former married**:
+      ${ word(yesno(plaintiffs_defendant_former_married)) }
   - Edit: representative_relationship
     button: |
       **Representative relationship**:
       ${ representative_relationship }
-  - Edit: plaintiffs_defendant
+  - Edit: plaintiffs_defendant_parenthood
     button: |
-      **Plaintiffs defendant**:
-      ${ plaintiffs_defendant }
+      **Plaintiffs defendant parenthood**:
+      ${ plaintiffs_defendant_parenthood }
   - Edit: defendants_age_older
     button: |
       **Defendants age older**:
@@ -718,13 +711,11 @@ attachments:
       - "signature_date__2": ${ signature_date }
       - "defendants_name_alias": ${ defendants_name_alias }
       - "plaintiffs_age_older": ${ plaintiffs_age_older }
-      - "plaintiffs_defendant_married__1": ${ plaintiffs_defendant_married }
-      - "plaintiffs_defendant_married__2": ${ plaintiffs_defendant_married }
-      - "plaintiffs_defendant_former__1": ${ plaintiffs_defendant_former }
-      - "plaintiffs_defendant_former__2": ${ plaintiffs_defendant_former }
+      - "plaintiffs_defendant_married": ${ plaintiffs_defendant_married }
+      - "plaintiffs_defendant_not_married": ${ plaintiffs_defendant_not_married }
+      - "plaintiffs_defendant_former__married": ${ plaintiffs_defendant_former_married }
+      - "plaintiffs_defendant_former__household": ${ plaintiffs_defendant_former_household }
       - "representative_relationship": ${ representative_relationship }
-      - "plaintiffs_defendant__1": ${ plaintiffs_defendant }
-      - "plaintiffs_defendant__2": ${ plaintiffs_defendant }
       - "defendants_age_older": ${ defendants_age_older }
       - "plaintiffs_defendant_household": ${ plaintiffs_defendant_household }
       - "defendants_gunlicense_number": ${ defendants_gunlicense_number }
