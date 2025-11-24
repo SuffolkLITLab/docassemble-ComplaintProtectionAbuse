@@ -1,6 +1,6 @@
 import os
 import sys
-from setuptools import setup, find_packages
+from setuptools import setup, find_namespace_packages
 from fnmatch import fnmatchcase
 from distutils.util import convert_path
 
@@ -51,8 +51,7 @@ setup(name='docassemble.ComplaintProtectionAbuse',
       author_email='diana.a.buenanos@gmail.com',
       license='The MIT License',
       url='https://courtformsonline.org',
-      packages=find_packages(),
-      namespace_packages=['docassemble'],
+      packages=find_namespace_packages(),
       install_requires=['docassemble.AssemblyLine>=2.13.0'],
       zip_safe=False,
       package_data=find_package_data(where='docassemble/ComplaintProtectionAbuse/', package='docassemble.ComplaintProtectionAbuse'),
