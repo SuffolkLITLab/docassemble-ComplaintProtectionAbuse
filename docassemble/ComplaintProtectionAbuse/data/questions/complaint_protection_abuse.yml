@@ -181,6 +181,7 @@ subquestion: |
    Please answer the following questions selecting the fields that describes better your relationship with ${defendants[0].name.first} to find out what it is.
 continue button field: user_saw_intro_one
 ---
+id: "have you ever had a sentimental relationship with defendants 0 name first"
 question: |
   Have you ever had a sentimental relationship with ${defendants[0].name.first}?
 fields:
@@ -192,6 +193,7 @@ fields:
   - I am or was engaged or dated with ${defendants[0].name.first}: plaintiffs_defendant_dating
     datatype: yesno
 ---
+id: "pending court actions in any non tribal court"
 question: |
   Pending Court actions in any non-tribal court 
 fields:
@@ -204,6 +206,7 @@ fields:
     datatype: area
     show if: plaintiffs1_defendant_pending_action
 ---
+id: "have you ever lived in the same household with defendants 0 name first"
 question: |
   Have you ever lived in the same household with ${defendants[0].name.first}?
 fields:
@@ -213,6 +216,7 @@ fields:
   - ${defendants[0].name.first} and I lived in the same household but not anymore: plaintiffs_defendant_former_household
     datatype: yesno
 ---
+id: "is there any other relationship between you and defendants 0 name first"
 question: |
   Is there any other relationship between you and ${defendants[0].name.first}?
 fields:
@@ -611,6 +615,7 @@ review:
       ${ signature_date }
 ---
 continue button field: defendants.revisit
+id: "edit defendants"
 question: |
   Edit defendants
 subquestion: |
@@ -635,6 +640,7 @@ confirm: True
 
 ---
 continue button field: plaintiffs.revisit
+id: "edit plaintiffs"
 question: |
   Edit plaintiffs
 subquestion: |
